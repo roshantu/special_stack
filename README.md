@@ -42,10 +42,15 @@ if (x < leftHeap.getRoot()) {
 - min():  o(1), 原理同max
 - median: o(1), 通过leftHeap和rightHeap的机制，media就是leftHeap的root
 
+### 程序目录说明
+- Heap和SpecialStack
+- test目录下为测试用例
+![目录图片](./images/dir)
+
 
 ### 程序运行
-- 编译: 安装gradle, 执行gradle clean build -x test
-- 运行: 在项目根目录，运行java -jar build/lib/
+- 编译: 安装gradle, 执行gradle clean shadowJar
+- 运行: 在项目根目录，运行java -jar build/libs/special-stack-1.0.0-all.jar
 
 
 ### 参考

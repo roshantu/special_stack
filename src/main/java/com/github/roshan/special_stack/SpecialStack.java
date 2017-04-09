@@ -8,43 +8,37 @@ import java.util.Stack;
  * Created by roshan on 2017/4/7.
  */
 public class SpecialStack extends Stack<Integer> {
-    private int max = Integer.MIN_VALUE;
-    private int min = Integer.MAX_VALUE;
     private int capacity;
     private Heap leftHeap;
+    private Heap leftAuxHeap;
     private Heap rightHeap;
+    private Heap rightAuxHeap;
 
     public SpecialStack(int capacity) {
         this.capacity = capacity;
         leftHeap  = new Heap(capacity, true);
+        leftAuxHeap = new Heap(capacity);
         rightHeap = new Heap(capacity);
+        rightAuxHeap = new Heap(capacity, true);
     }
 
     @Override
     public Integer push(Integer x) {
         if (super.isEmpty()) {
-            leftHeap.insert(x);
             super.push(x);
-            min = x;
-            max = x;
+            leftHeap.insert(x);
+            leftAuxHeap.insert(x);
         } else {
             super.push(x);
             if (x < leftHeap.getRoot()) {
                 leftHeap.insert(x);
-                if ((leftHeap.getSize() - 1) > rightHeap.getSize()) {
-                    int removeRoot = leftHeap.removeRoot();
-                    rightHeap.insert(removeRoot);
-                }
+                leftAuxHeap.insert(x);
             } else {
                 rightHeap.insert(x);
-                if ((rightHeap.getSize() - 1) > leftHeap.getSize()) {
-                    int removeRoot = rightHeap.removeRoot();
-                    leftHeap.insert(removeRoot);
-                }
+                rightAuxHeap.insert(x);
             }
 
-            min = leftHeap.getMin();
-            max = rightHeap.getMax();
+            rebuildHeap();
         }
 
         return x;
@@ -55,18 +49,13 @@ public class SpecialStack extends Stack<Integer> {
         int node = super.pop();
         if (node <= leftHeap.getRoot()) {
             leftHeap.removeNode(node);
-        } else if (node >= leftHeap.getRoot()){
+            leftAuxHeap.removeNode(node);
+        } else {
             rightHeap.removeNode(node);
+            rightAuxHeap.removeNode(node);
         }
 
         rebuildHeap();
-        min = leftHeap.getMin();
-        if (rightHeap.getSize() > 0) {
-            max = rightHeap.getMax();
-        } else {
-            max = leftHeap.getMax();
-        }
-
         return node;
     }
 
@@ -75,11 +64,11 @@ public class SpecialStack extends Stack<Integer> {
     }
 
     public Integer max() {
-        return max;
+        return rightAuxHeap.getRoot();
     }
 
     public Integer min() {
-        return min;
+        return leftAuxHeap.getRoot();
     }
 
     public Integer median() {
@@ -92,15 +81,22 @@ public class SpecialStack extends Stack<Integer> {
 
     private void rebuildHeap() {
         while ((leftHeap.getSize() - 1) > rightHeap.getSize()) {
-            int removeRoot = leftHeap.removeRoot();
-            rightHeap.insert(removeRoot);
+            moveHeapRoot(leftHeap, leftAuxHeap, rightHeap, rightAuxHeap);
         }
 
         while ((rightHeap.getSize() - 1) > leftHeap.getSize()) {
-            int removeRoot = rightHeap.removeRoot();
-            leftHeap.insert(removeRoot);
+            moveHeapRoot(rightHeap, rightAuxHeap, leftHeap, leftAuxHeap);
         }
     }
+
+    private void moveHeapRoot(Heap src, Heap srcAux, Heap dest, Heap destAux) {
+        int removeRoot = src.removeRoot();
+        srcAux.removeNode(removeRoot);
+        dest.insert(removeRoot);
+        destAux.insert(removeRoot);
+    }
+
+
 
     @Override
     public String toString() {
@@ -111,7 +107,9 @@ public class SpecialStack extends Stack<Integer> {
             stringBuilder.append("|max=" + max());
             stringBuilder.append("|median=" + median());
             stringBuilder.append("|leftHeap:" + leftHeap);
+            stringBuilder.append("|leftAuxHeap:" + leftAuxHeap);
             stringBuilder.append("|rightHeap:" + rightHeap);
+            stringBuilder.append("|rightAuxHeap:" + rightAuxHeap);
         }
 
         stringBuilder.append("|stack:[");

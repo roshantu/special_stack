@@ -1,5 +1,10 @@
 package com.github.roshan.special_stack;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by roshan on 2017/4/7.
  */
@@ -7,10 +12,8 @@ public class Heap {
     private boolean isReverse = false; // default is min-heap
     private int[] array;
     private int capacity;
-    private int min;
-    private int max;
     private int size;
-
+    private Map<Integer, List<Integer>> elemPosition = new HashMap<>();
 
     public Heap(int capacity) {
         init(capacity);
@@ -30,8 +33,6 @@ public class Heap {
         } else {
             array[0] = Integer.MAX_VALUE;
         }
-        min = Integer.MAX_VALUE;
-        max = Integer.MIN_VALUE;
     }
 
     public void insert(int node) {
@@ -40,8 +41,7 @@ public class Heap {
         }
 
         array[++size] = node;
-        max = maxFetch(node, max);
-        min = minFetch(node, min);
+        recordPosition(node, size);
         heapBottomUp();
     }
 
@@ -58,68 +58,31 @@ public class Heap {
             throw new RuntimeException("Heap is empty");
         }
 
+        int rootNode = getRoot();
+        removePosition(rootNode, 1);
         swap(1, size);
         size--;
         if(size != 0) {
             heapTopDown(1);
         }
 
-        if (!isReverse) {
-            min = array[1];
-        } else {
-            max = array[1];
-        }
-
         return array[size + 1];
     }
 
-
     public void removeNode(int node) {
-        boolean isFetchMinMax = false;
-        if (!isReverse) {
-            if (node == max)  {
-                isFetchMinMax = true;
-                max = Integer.MIN_VALUE;
-            }
-        } else {
-            if (node == min) {
-                isFetchMinMax = true;
-                min = Integer.MAX_VALUE;
-            }
-        }
-
-        for(int i = 1; i <= size;) {
-            if (node == array[i]) {
-                swap(i, size);
+        Integer position = getNodePosition(node);
+        if (position != null) {
+            removePosition(node, position);
+            if (position != size) {
+                swap(position, size);
                 size--;
-                heapTopDown(i);
-                continue;
+                heapTopDown(position);
+            } else {
+                size--;
             }
-
-            if (isFetchMinMax) {
-                if (!isReverse) {
-                    max = maxFetch(array[i], max);
-                } else {
-                    min = minFetch(array[i], min);
-                }
-            }
-
-            i++;
-        }
-
-        if (!isReverse) {
-            min = getRoot();
         } else {
-            max = getRoot();
+            throw new RuntimeException("remove unknown node");
         }
-    }
-
-    private int maxFetch(int a, int b) {
-        return a > b ? a: b;
-    }
-
-    private int minFetch(int a, int b) {
-        return a < b ? a: b;
     }
 
     private void heapTopDown(int pos) {
@@ -163,6 +126,8 @@ public class Heap {
     }
 
     private void swap(int src, int dest) {
+        changeNodePosition(array[src], src, dest);
+        changeNodePosition(array[dest], dest, src);
         int tmp = array[src];
         array[src] = array[dest];
         array[dest] = tmp;
@@ -184,36 +149,47 @@ public class Heap {
         return ((pos > size/2) && (pos <= size));
     }
 
-    public int getMin() {
-        return min;
+    private void recordPosition(Integer elem, Integer pos) {
+        if (elemPosition.containsKey(elem)) {
+            elemPosition.get(elem).add(pos);
+        } else {
+            elemPosition.put(elem, new ArrayList(){{add(pos);}});
+        }
     }
 
-    public void setMin(int min) {
-        this.min = min;
+    private void removePosition(Integer elem, Integer pos) {
+        if (elemPosition.containsKey(elem)) {
+            List<Integer> positionList = elemPosition.get(elem);
+            for(Integer posNode: positionList) {
+                if (posNode.equals(pos)) {
+                    positionList.remove(pos);
+                    break;
+                }
+            }
+        }
     }
 
-    public int getMax() {
-        return max;
+    private Integer getNodePosition(Integer node) {
+        if (elemPosition.containsKey(node)) {
+            return elemPosition.get(node).get(0);
+        } else {
+            return null;
+        }
     }
 
-    public void setMax(int max) {
-        this.max = max;
+    private void changeNodePosition(Integer srcNode, Integer srcPos, Integer destPos) {
+        removePosition(srcNode, srcPos);
+        recordPosition(srcNode, destPos);
     }
 
     public int getSize() {
         return size;
     }
 
-    public void setSize(int size) {
-        this.size = size;
-    }
-
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         if (size > 0) {
-            stringBuilder.append("max:" + max + ";");
-            stringBuilder.append("min:" + min + ";");
             stringBuilder.append("root:" + getRoot() + ";");
         }
 

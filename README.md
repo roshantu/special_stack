@@ -5,6 +5,8 @@
 如果所有数据是有序的，那么max, min, median能做到o(1)，但是要在push,pop操作之后，对数据进行排序，比如使用堆的排序算法，push和pop的时间复杂度也只能到log(n)*n
 
 为了提高性能，在实现stack的push,pop操作的同时，能够支持到median的o(1)复杂度，可以额外用一个大顶堆leftHeap和一个小顶堆rightHeap将数据划分成2部分，主要算法：
+同时增加leftHeap的辅助heap来获取leftHeap的最小元素
+增加rightHeap的辅助heap获取rightheap的最大元素
 
 ```
 1. leftHeap的根结点就是median
@@ -36,7 +38,7 @@ if (x < leftHeap.getRoot()) {
 ### 复杂度分析
 
 - push(x): 插入元素leftHeap或者rightHeap会做一次或者两次堆调整，时间复杂度时o(log(n))
-- pop(x):  删除元素，会遍历leftHeap或者rightHeap，时间复杂度o(n) + k*log(n),k为元素重复次数
+- pop(x):  删除元素，会遍历leftHeap或者rightHeap，时间复杂度o(log(n))
 - top():  o(1)
 - max():  o(1), 在push或者pop操作的同时，就记录max
 - min():  o(1), 原理同max
@@ -56,5 +58,6 @@ if (x < leftHeap.getRoot()) {
 ### 参考
 - 算法：<http://stackoverflow.com/questions/11361320/data-structure-to-find-median/>
 - heap实现：<http://cs.usfca.edu/~galles/cs245/lecture/MinHeap.java.html/>
+- o(1) for get max from min-heap <https://www.linkedin.com/pulse/finding-minimum-element-o1-complexity-from-maxheap-karumanchi/>
 
 

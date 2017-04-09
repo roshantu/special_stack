@@ -9,17 +9,17 @@ import java.util.Stack;
  */
 public class SpecialStack extends Stack<Integer> {
     private int capacity;
-    private Heap leftHeap;
-    private Heap leftAuxHeap;
-    private Heap rightHeap;
-    private Heap rightAuxHeap;
+    private HashHeap leftHeap;
+    private HashHeap leftAuxHeap;
+    private HashHeap rightHeap;
+    private HashHeap rightAuxHeap;
 
     public SpecialStack(int capacity) {
         this.capacity = capacity;
-        leftHeap  = new Heap(capacity, true);
-        leftAuxHeap = new Heap(capacity);
-        rightHeap = new Heap(capacity);
-        rightAuxHeap = new Heap(capacity, true);
+        leftHeap  = new HashHeap(capacity, true);
+        leftAuxHeap = new HashHeap(capacity);
+        rightHeap = new HashHeap(capacity);
+        rightAuxHeap = new HashHeap(capacity, true);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class SpecialStack extends Stack<Integer> {
             leftAuxHeap.insert(x);
         } else {
             super.push(x);
-            if (x < leftHeap.getRoot()) {
+            if (x <= leftHeap.getRoot()) {
                 leftHeap.insert(x);
                 leftAuxHeap.insert(x);
             } else {
@@ -64,11 +64,19 @@ public class SpecialStack extends Stack<Integer> {
     }
 
     public Integer max() {
-        return rightAuxHeap.getRoot();
+        if (rightAuxHeap.getSize() > 0) {
+            return rightAuxHeap.getRoot();
+        } else {
+            return leftHeap.getRoot();
+        }
     }
 
     public Integer min() {
-        return leftAuxHeap.getRoot();
+        if (leftAuxHeap.getSize() > 0) {
+            return leftAuxHeap.getRoot();
+        } else {
+            return null;
+        }
     }
 
     public Integer median() {
@@ -84,12 +92,14 @@ public class SpecialStack extends Stack<Integer> {
             moveHeapRoot(leftHeap, leftAuxHeap, rightHeap, rightAuxHeap);
         }
 
-        while ((rightHeap.getSize() - 1) > leftHeap.getSize()) {
+        while (((rightHeap.getSize() - 1) > leftHeap.getSize()) ||
+                ((leftHeap.getSize() == 0) && (rightHeap.getSize() > 0))) {
             moveHeapRoot(rightHeap, rightAuxHeap, leftHeap, leftAuxHeap);
         }
     }
 
-    private void moveHeapRoot(Heap src, Heap srcAux, Heap dest, Heap destAux) {
+    private void moveHeapRoot(HashHeap src, HashHeap srcAux,
+                              HashHeap dest, HashHeap destAux) {
         int removeRoot = src.removeRoot();
         srcAux.removeNode(removeRoot);
         dest.insert(removeRoot);

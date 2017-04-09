@@ -8,7 +8,7 @@ import org.junit.Test;
 public class HeapTest {
     @Test
     public void minHeapTest() {
-        Heap heap = new Heap(10000);
+        HashHeap heap = new HashHeap(10000);
         System.out.println("empty heap|" + heap);
         heap.insert(3);
         heap.insert(1);
@@ -23,7 +23,7 @@ public class HeapTest {
 
     @Test
     public void maxHeapTest() {
-        Heap heap = new Heap(10000, true);
+        HashHeap heap = new HashHeap(10000, true);
         System.out.println("empty heap|" + heap);
         heap.insert(3);
         heap.insert(1);

@@ -38,7 +38,7 @@ if (x < leftHeap.getRoot()) {
 ### 复杂度分析
 
 - push(x): 插入元素leftHeap或者rightHeap会做一次或者两次堆调整，时间复杂度时o(log(n))
-- pop(x):  删除元素，会遍历leftHeap或者rightHeap，时间复杂度o(log(n))
+- pop(x):  删除元素，利用hashmap记录删除位置，时间复杂度o(log(n))
 - top():  o(1)
 - max():  o(1), 在push或者pop操作的同时，就记录max
 - min():  o(1), 原理同max
